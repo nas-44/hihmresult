@@ -1,2 +1,2 @@
-# Hihmresult
+# hihmresult
 Exam Results
