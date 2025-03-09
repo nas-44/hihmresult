@@ -6,7 +6,7 @@
     <title>Student Result Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    
+
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -60,47 +60,10 @@
             text-align: center;
             display: none;
         }
-        .result-box h3 {
-            margin-bottom: 10px;
-            color: #444;
-        }
-        .pass {
-            font-weight: bold;
-            font-size: 18px;
-            color: green;
-        }
-        .fail {
-            font-weight: bold;
-            font-size: 18px;
-            color: red;
-        }
-        .failed-subject {
-            color: red;
-            font-weight: bold;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        table, th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #ddd;
-        }
-        .student-name {
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 10px;
-        }
         .download-btn {
             margin-top: 15px;
             padding: 10px;
-            background-color: #289939;
+            background-color: #d9534f;
             color: white;
             border: none;
             cursor: pointer;
@@ -109,6 +72,31 @@
         }
         .download-btn:hover {
             background-color: #c9302c;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #ddd;
+        }
+        .pass {
+            font-weight: bold;
+            color: green;
+        }
+        .fail {
+            font-weight: bold;
+            color: red;
+        }
+        .failed-subject {
+            color: red;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -138,15 +126,17 @@
             <label for="rollNumber">Enter Roll Number:</label>
             <input type="text" id="rollNumber" placeholder="Enter Roll Number">
         </div>
+
         <button onclick="getResult()">Get Result</button>
         <div id="result" class="result-box"></div>
-        <button class="download-btn" onclick="downloadPDF()">Download Result</button>
+        <button class="download-btn" onclick="downloadPDF()">Download PDF</button>
     </div>
 
     <script>
         const sheetID = "1NHnBpLQHq52X4-bagOrnWcN0xhClWj70Qr_pzACwW0E";  
         let cachedData = {};  
         const passMark = 18;  
+        let studentName = ""; 
 
         async function getResult() {
             let roll = document.getElementById("rollNumber").value.trim();
@@ -194,9 +184,9 @@
             let studentResult = cachedData[selectedClass].find(student => student["Roll Number"] == roll);
 
             if (studentResult) {
-                let studentName = studentResult["Student Name"] || "Unknown";
+                studentName = studentResult["Student Name"] || "Unknown";
                 let resultText = `<h3>Roll Number: ${studentResult["Roll Number"]}</h3>`;
-                resultText += `<div class="student-name">Student Name: ${studentName}</div>`;
+                resultText += `<h3>Student Name: ${studentName}</h3>`;
                 resultText += `<table><tr><th>Subject</th><th>Marks</th></tr>`;
 
                 Object.keys(studentResult).forEach(key => {
@@ -219,9 +209,23 @@
         function downloadPDF() {
             const { jsPDF } = window.jspdf;
             let doc = new jsPDF();
-            doc.text("Student Exam Result", 20, 10);
-            doc.autoTable({ html: "#result table" });
-            doc.save("Student_Result.pdf");
+
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 0, 255);
+            doc.text("Student Exam Result", 20, 15);
+
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Student Name: ${studentName}`, 20, 25);
+            doc.text(`Roll Number: ${document.getElementById("rollNumber").value}`, 20, 35);
+
+            doc.autoTable({
+                html: "#result table",
+                startY: 45,
+                theme: "grid"
+            });
+
+            doc.save(`${studentName}_Result.pdf`);
         }
     </script>
 
