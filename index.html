@@ -185,6 +185,7 @@
 
             if (studentResult) {
                 studentName = studentResult["Student Name"] || "Unknown";
+                let isPass = true;
                 let resultText = `<h3>Roll Number: ${studentResult["Roll Number"]}</h3>`;
                 resultText += `<h3>Student Name: ${studentName}</h3>`;
                 resultText += `<table><tr><th>Subject</th><th>Marks</th></tr>`;
@@ -192,11 +193,14 @@
                 Object.keys(studentResult).forEach(key => {
                     if (!isNaN(studentResult[key]) && key.toLowerCase() !== "roll number") {
                         let mark = studentResult[key] < passMark ? `<span class="failed-subject">${studentResult[key]}</span>` : studentResult[key];
+                        if (studentResult[key] < passMark) isPass = false;
                         resultText += `<tr><td>${key}</td><td>${mark}</td></tr>`;
                     }
                 });
 
                 resultText += `</table>`;
+                resultText += `<h3 class="${isPass ? 'pass' : 'fail'}">${isPass ? 'Pass' : 'Fail'}</h3>`;
+
                 resultDiv.innerHTML = resultText;
                 resultDiv.style.display = "block";
                 downloadBtn.style.display = "block";
@@ -209,22 +213,13 @@
         function downloadPDF() {
             const { jsPDF } = window.jspdf;
             let doc = new jsPDF();
-
             doc.setFont("helvetica", "bold");
             doc.setTextColor(0, 0, 255);
             doc.text("Student Exam Result", 20, 15);
-
             doc.setFontSize(12);
             doc.setTextColor(0, 0, 0);
             doc.text(`Student Name: ${studentName}`, 20, 25);
-            doc.text(`Roll Number: ${document.getElementById("rollNumber").value}`, 20, 35);
-
-            doc.autoTable({
-                html: "#result table",
-                startY: 45,
-                theme: "grid"
-            });
-
+            doc.autoTable({ html: "#result table", startY: 35 });
             doc.save(`${studentName}_Result.pdf`);
         }
     </script>
