@@ -211,17 +211,80 @@
         }
 
         function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            let doc = new jsPDF();
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(0, 0, 255);
-            doc.text("Student Exam Result", 20, 15);
-            doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Student Name: ${studentName}`, 20, 25);
-            doc.autoTable({ html: "#result table", startY: 35 });
-            doc.save(`${studentName}_Result.pdf`);
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF();
+
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 255);
+    doc.text("Student Exam Result", 20, 15);
+
+    // Student Name
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Student Name: ${studentName}`, 20, 25);
+
+    // Extracting table data
+    let table = document.querySelector("#result table");
+    let rows = table.querySelectorAll("tr");
+
+    let tableData = [];
+    let rowStyles = [];
+
+    rows.forEach((row, rowIndex) => {
+        let rowData = [];
+        let cells = row.querySelectorAll("td, th");
+
+        cells.forEach((cell) => {
+            rowData.push(cell.innerText);
+        });
+
+        tableData.push(rowData);
+
+        // Apply row colors based on Google Sheet formatting
+        if (rowIndex === 0) {
+            rowStyles.push({ fillColor: [200, 200, 200], textColor: [0, 0, 0] }); // Header row (gray)
+        } else if (row.innerHTML.includes("failed-subject")) {
+            rowStyles.push({ fillColor: [255, 102, 102], textColor: [0, 0, 0] }); // Failing subject row (red)
+        } else if (row.innerHTML.includes("Attendance")) {
+            rowStyles.push({ fillColor: [255, 223, 186], textColor: [0, 0, 0] }); // Attendance row (light orange)
+        } else {
+            rowStyles.push({ fillColor: [144, 238, 144], textColor: [0, 0, 0] }); // Passing row (green)
         }
+    });
+
+    // Add result status ("Pass" or "Fail") as the last row
+    let passFailText = document.querySelector(".pass") ? "Pass" : "Fail";
+    let passFailColor = passFailText === "Pass" ? [0, 128, 0] : [255, 0, 0]; // Green for pass, red for fail
+    tableData.push(["Result", passFailText]);
+    rowStyles.push({ fillColor: passFailColor, textColor: [255, 255, 255] }); // Highlight result row
+
+    // Using autoTable with row styles
+    doc.autoTable({
+        head: [tableData[0]],
+        body: tableData.slice(1),
+        startY: 35,
+        styles: {
+            fontSize: 10,
+            cellPadding: 3,
+            textColor: [0, 0, 0],
+            lineWidth: 0.2,
+            lineColor: [0, 0, 0],
+        },
+        headStyles: {
+            fillColor: [200, 200, 200], // Header background color
+            textColor: [0, 0, 0],
+            fontStyle: "bold",
+        },
+        bodyStyles: rowStyles, // Apply row background colors
+        columnStyles: {
+            1: { halign: "center" }, // Center-align marks column
+        },
+    });
+
+    // Save PDF with student name
+    doc.save(`${studentName}_Result.pdf`);
+}
     </script>
 
 </body>
