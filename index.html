@@ -97,7 +97,6 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <h2>Check Your Exam Result</h2>
 
@@ -115,17 +114,14 @@
                 <option value="Class 11">Class 11</option>
             </select>
         </div>
-
         <div class="form-group">
             <label for="rollNumber">Enter Roll Number:</label>
             <input type="text" id="rollNumber" placeholder="Enter Roll Number">
         </div>
-
         <button onclick="getResult()">Get Result</button>
         <div id="result" class="result-box"></div>
         <button class="download-btn" onclick="downloadPDF()">Download Result</button>
     </div>
-
     <script>
         const sheetID = "1NHnBpLQHq52X4-bagOrnWcN0xhClWj70Qr_pzACwW0E";  
         let cachedData = {};  
