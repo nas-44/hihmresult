@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Result Portal</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"    ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
             text-align: center;
         }
+
         .container {
             width: 40%;
             margin: 50px auto;
@@ -22,19 +23,25 @@
             border-radius: 10px;
             text-align: left;
         }
+
         h2 {
             color: #333;
             text-align: center;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         label {
             font-weight: bold;
             display: block;
             margin-bottom: 5px;
         }
-        select, input, button {
+
+        select,
+        input,
+        button {
             width: 100%;
             padding: 10px;
             font-size: 16px;
@@ -42,6 +49,7 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+
         button {
             background-color: #289939;
             color: white;
@@ -49,9 +57,20 @@
             cursor: pointer;
             margin-top: 10px;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
+        .rank-box {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #ffc;
+            text-align: center;
+            display: none;
+        }
+
         .result-box {
             margin-top: 20px;
             padding: 15px;
@@ -60,6 +79,7 @@
             text-align: center;
             display: none;
         }
+
         .download-btn {
             margin-top: 15px;
             padding: 10px;
@@ -70,32 +90,45 @@
             border-radius: 5px;
             display: none;
         }
+
         .download-btn:hover {
             background-color: #c9302c;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid #ccc;
             padding: 8px;
             text-align: left;
         }
+
         th {
             background-color: #ddd;
         }
+
         .pass {
             font-weight: bold;
             color: green;
         }
+
         .fail {
             font-weight: bold;
             color: red;
         }
+
+        .failed-subject {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -109,10 +142,12 @@
                 <option value="Class 2">Class 2</option>
                 <option value="Class 3">Class 3</option>
                 <option value="Class 4">Class 4</option>
+                <option value="Class 5">Class 5</option>
                 <option value="Class 6">Class 6</option>
+                <option value="Class 7">Class 7</option>
                 <option value="Class 8">Class 8</option>
                 <option value="Class 9">Class 9</option>
-                <option value="Class 11">Class 11</option>
+                <option value="Class 10">Class 10</option>
             </select>
         </div>
 
@@ -122,98 +157,98 @@
         </div>
 
         <button onclick="getResult()">Get Result</button>
+        <div id="rank" class="rank-box"></div>
         <div id="result" class="result-box"></div>
-        <button class="download-btn" onclick="downloadPDF()">Download Result</button>
+        <button class="download-btn" onclick="downloadPDF()">Download PDF</button>
     </div>
 
     <script>
-        const sheetID = "18vFaSksb7IlzNEKR0aaifUg3wSgRpGKzAUCxItvEKMI";  
-        let cachedData = {};  
-        const passMark = 18;  
-        let studentName = "";  
-        let studentRank = "";  
+        const sheetID = "18vFaSksb7IlzNEKR0aaifUg3wSgRpGKzAUCxItvEKMI";
+        let cachedData = {};
+        const passMark = 18;
+        let studentName = "";
 
         async function getResult() {
-    let roll = document.getElementById("rollNumber").value.trim();
-    let selectedClass = document.getElementById("classSelect").value;
-    let resultDiv = document.getElementById("result");
-    let downloadBtn = document.querySelector(".download-btn");
+            let roll = document.getElementById("rollNumber").value.trim();
+            let selectedClass = document.getElementById("classSelect").value;
+            let resultDiv = document.getElementById("result");
+            let rankDiv = document.getElementById("rank");
+            let downloadBtn = document.querySelector(".download-btn");
 
-    if (!selectedClass) {
-        alert("Please select your class!");
-        return;
-    }
-    if (roll === '') {
-        alert("Please enter a roll number!");
-        return;
-    }
-
-    resultDiv.style.display = "none";
-    downloadBtn.style.display = "none";
-
-    if (!cachedData[selectedClass]) {
-        let sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${selectedClass}`;
-        try {
-            let response = await fetch(sheetURL);
-            let text = await response.text();
-            let json = JSON.parse(text.substr(47).slice(0, -2));
-            let rows = json.table.rows;
-            let headers = json.table.cols.map(col => col.label);
-
-            cachedData[selectedClass] = rows.map(row => {
-                let rowData = {};
-                headers.forEach((header, index) => {
-                    rowData[header] = row.c[index]?.v || "N/A";
-                });
-                return rowData;
-            });
-
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            resultDiv.innerHTML = "Error fetching results. Please try again later.";
-            resultDiv.style.display = "block";
-            return;
-        }
-    }
-
-    let studentResult = cachedData[selectedClass].find(student => student["Roll Number"] == roll);
-
-    if (studentResult) {
-        studentName = studentResult["Student Name"] || "Unknown";
-        studentRank = studentResult["Rank"] || "N/A";  
-        let isPass = true;
-        let resultText = `<h3>Roll Number: ${studentResult["Roll Number"]}</h3>`;
-        resultText += `<h3>Student Name: ${studentName}</h3>`;
-        resultText += `<h3>Rank: ${studentRank}</h3>`;
-        
-        // Adding subject-wise marks
-        resultText += `<table><tr><th>Subject</th><th>Marks</th></tr>`;
-        Object.keys(studentResult).forEach(key => {
-            if (!isNaN(studentResult[key]) && key.toLowerCase() !== "roll number") {
-                let mark = studentResult[key];
-                let className = mark < passMark ? "fail" : "pass";
-                resultText += `<tr><td>${key}</td><td class="${className}">${mark}</td></tr>`;
-                if (mark < passMark) isPass = false;
+            if (!selectedClass) {
+                alert("Please select your class!");
+                return;
             }
-        });
+            if (roll === '') {
+                alert("Please enter a roll number!");
+                return;
+            }
 
-        resultText += `</table>`;
+            resultDiv.style.display = "none";
+            rankDiv.style.display = "none";
+            downloadBtn.style.display = "none";
 
-        // Adding attendance
-        if (studentResult["Attendance"]) {
-            resultText += `<h3>Attendance: ${studentResult["Attendance"]}%</h3>`;
+            if (!cachedData[selectedClass]) {
+                let sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${selectedClass}`;
+                try {
+                    let response = await fetch(sheetURL);
+                    let text = await response.text();
+                    let json = JSON.parse(text.substr(47).slice(0, -2));
+                    let rows = json.table.rows;
+                    let headers = json.table.cols.map(col => col.label);
+
+                    cachedData[selectedClass] = rows.map(row => {
+                        let rowData = {};
+                        headers.forEach((header, index) => {
+                            rowData[header] = row.c[index]?.v || "N/A";
+                        });
+                        return rowData;
+                    });
+
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                    resultDiv.innerHTML = "Error fetching results. Please try again later.";
+                    resultDiv.style.display = "block";
+                    return;
+                }
+            }
+
+            let studentResult = cachedData[selectedClass].find(student => student["Roll Number"] == roll);
+
+            if (studentResult) {
+                studentName = studentResult["Student Name"] || "Unknown";
+                let isPass = true;
+                let resultText = `<h3>Roll Number: ${studentResult["Roll Number"]}</h3>`;
+                resultText += `<h3>Student Name: ${studentName}</h3>`;
+                resultText += `<table><tr><th>Subject</th><th>Marks</th></tr>`;
+
+                let totalMarks = 0;
+                Object.keys(studentResult).forEach(key => {
+                    if (!isNaN(studentResult[key]) && key.toLowerCase() !== "roll number" && key.toLowerCase() !== "rank") {
+                        let mark = studentResult[key] < passMark ? `<span class="failed-subject">${studentResult[key]}</span>` : studentResult[key];
+                        if (studentResult[key] < passMark) isPass = false;
+                        resultText += `<tr><td>${key}</td><td>${mark}</td></tr>`;
+                        totalMarks += Number(studentResult[key]); // Calculate total marks
+                    }
+                });
+
+                resultText += `</table>`;
+                resultText += `<h3 class="${isPass ? 'pass' : 'fail'}">${isPass ? 'Pass' : 'Fail'}</h3>`;
+
+                // Display rank if available
+                let rank = studentResult["Rank"] || "N/A";
+                rankDiv.innerHTML = `<h3>Rank: ${rank}</h3>`;
+                rankDiv.style.display = "block";
+
+                resultDiv.innerHTML = resultText;
+                resultDiv.style.display = "block";
+                downloadBtn.style.display = "block";
+            } else {
+                resultDiv.innerHTML = "Result Not Found!";
+                resultDiv.style.display = "block";
+            }
         }
 
-        resultText += `<h3 class="${isPass ? 'pass' : 'fail'}">${isPass ? 'Pass' : 'Fail'}</h3>`;
-
-        resultDiv.innerHTML = resultText;
-        resultDiv.style.display = "block";
-        downloadBtn.style.display = "block";
-    } else {
-        resultDiv.innerHTML = "Result Not Found!";
-        resultDiv.style.display = "block";
-    }
-}
         function downloadPDF() {
     const { jsPDF } = window.jspdf;
     let doc = new jsPDF();
@@ -223,46 +258,55 @@
     doc.setTextColor(0, 0, 255);
     doc.text("Student Exam Result", 20, 15);
 
-    // Student Details
+    // Student Name
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     doc.text(`Student Name: ${studentName}`, 20, 25);
-    doc.text(`Roll Number: ${document.getElementById("rollNumber").value}`, 20, 30);
-    doc.text(`Rank: ${studentRank}`, 20, 35);
+
+    // Rank
+    let rank = document.getElementById("rank").innerText.replace("Rank: ", "");
+    doc.text(`Rank: ${rank}`, 20, 35);
 
     // Extracting table data
     let table = document.querySelector("#result table");
     let rows = table.querySelectorAll("tr");
 
     let tableData = [];
-    let failedSubjects = [];  
+    let rowStyles = [];
 
     rows.forEach((row, rowIndex) => {
         let rowData = [];
         let cells = row.querySelectorAll("td, th");
 
-        cells.forEach((cell, cellIndex) => {
-            let cellText = cell.innerText.trim();
-            rowData.push(cellText);
-
-            // Check for failed subjects (marks < pass mark)
-            if (cell.classList.contains("fail")) {
-                failedSubjects.push({ row: rowIndex, col: cellIndex });
-            }
+        cells.forEach((cell) => {
+            rowData.push(cell.innerText);
         });
 
         tableData.push(rowData);
+
+        // Apply row colors based on Google Sheet formatting
+        if (rowIndex === 0) {
+            rowStyles.push({ fillColor: [200, 200, 200], textColor: [0, 0, 0] }); // Header row (gray)
+        } else if (row.innerHTML.includes("failed-subject")) {
+            rowStyles.push({ fillColor: [255, 102, 102], textColor: [0, 0, 0] }); // Failing subject row (red)
+        } else if (row.innerHTML.includes("Attendance")) {
+            rowStyles.push({ fillColor: [255, 223, 186], textColor: [0, 0, 0] }); // Attendance row (light orange)
+        } else {
+            rowStyles.push({ fillColor: [144, 238, 144], textColor: [0, 0, 0] }); // Passing row (green)
+        }
     });
 
-    // Add Attendance
-    let attendance = document.querySelector("#result h3:nth-of-type(4)");
-    let attendanceText = attendance ? attendance.innerText : "N/A";
+    // Add result status ("Pass" or "Fail") as the last row
+    let passFailText = document.querySelector(".pass") ? "Pass" : "Fail";
+    let passFailColor = passFailText === "Pass" ? [0, 128, 0] : [255, 0, 0]; // Green for pass, red for fail
+    tableData.push(["Result", passFailText]);
+    rowStyles.push({ fillColor: passFailColor, textColor: [255, 255, 255] }); // Highlight result row
 
-    // Using autoTable
+    // Using autoTable with row styles
     doc.autoTable({
         head: [tableData[0]],
         body: tableData.slice(1),
-        startY: 40,
+        startY: 45,
         styles: {
             fontSize: 10,
             cellPadding: 3,
@@ -271,34 +315,22 @@
             lineColor: [0, 0, 0],
         },
         headStyles: {
-            fillColor: [200, 200, 200],
+            fillColor: [200, 200, 200], // Header background color
             textColor: [0, 0, 0],
             fontStyle: "bold",
         },
-        didParseCell: function (data) {
-            failedSubjects.forEach((failed) => {
-                if (data.row.index === failed.row - 1 && data.column.index === failed.col) {
-                    data.cell.styles.textColor = [255, 0, 0];
-                    data.cell.styles.fontStyle = "bold";
-                }
-            });
+        bodyStyles: rowStyles, // Apply row background colors
+        columnStyles: {
+            1: { halign: "center" }, // Center-align marks column
         },
     });
-
-    // Add Attendance at the bottom
-    doc.text(`Attendance: ${attendanceText}`, 20, doc.autoTable.previous.finalY + 10);
-
-    // Add "Pass" or "Fail"
-    let passFailText = document.querySelector(".pass") ? "Pass" : "Fail";
-    let passFailColor = passFailText === "Pass" ? [0, 128, 0] : [255, 0, 0];
-    doc.setTextColor(...passFailColor);
-    doc.setFontSize(14);
-    doc.text(`Result: ${passFailText}`, 20, doc.autoTable.previous.finalY + 20);
 
     // Save PDF with student name
     doc.save(`${studentName}_Result.pdf`);
 }
+
     </script>
 
 </body>
+
 </html>
