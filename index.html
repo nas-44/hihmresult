@@ -25,7 +25,7 @@
         }
         
         h2 {
-    color: #3cb01c;
+    color: #333;
     text-align: center;
 } 
          
@@ -128,6 +128,25 @@
             color: red;
             font-weight: bold;
         }
+        
+        .contact-box {
+    margin-top: 50px;
+    padding: 10px;
+    border-radius: 5px;
+    background: #eef;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid #ccc;
+}
+.contact-box a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+.contact-box a:hover {
+    text-decoration: underline;
+}
     </style>
 </head>
 
@@ -162,6 +181,11 @@
         <div id="result" class="result-box"></div>
         <button class="download-btn" onclick="downloadPDF()">Download your Result</button>
     </div>
+    <div id="contact-info" class="contact-box">
+    <p><strong>For Help, please contact:</strong></p>
+    <p>Muhammed Naseef <a href="tel:+91 9072987595">+91 9072987595</a></p>
+
+</div>
 
     <script>
         const sheetID = "1R2nNGJVfoR6eF_xBspheENdfY0hU4cwFltMSWd0nDyE";
