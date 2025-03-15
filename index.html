@@ -23,10 +23,17 @@
             border-radius: 10px;
             text-align: centre;
         }
-
-                h2 {
-            333 #3cb01c;
-            text-align: center;
+        
+        h1 {
+    color: #7284b8;
+    text-align: center;
+}
+        
+        h2 {
+    color: #3cb01c;
+    text-align: center;
+} 
+         
         }
 
         .form-group {
@@ -262,23 +269,29 @@
 
         function downloadPDF() {
     const { jsPDF } = window.jspdf;
-    let doc = new jsPDF();
+    let doc = new jsPDF("p", "mm", "a4"); // A4 size document
 
-    // Title
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(69, 173, 108);
-    doc.text("HAYATHUL ISLAM HIGHER SECONDARY MADRASA", 20, 15);
+    // Institution Header
+    doc.setFont("times", "bold");
+    doc.setTextColor(0, 0, 128);
+    doc.setFontSize(16);
+    doc.text("HAYATHUL ISLAM HIGHER SECONDARY MADRASA", 45, 20);
 
-    // Student Name
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Student Name: ${studentName}`, 20, 25);
+    doc.text("Final Examination Results", 80, 27);
 
-    // Rank
+    // Student Details Section
+    doc.setFont("times", "normal");
+    doc.setFontSize(14);
+    doc.rect(16, 30, 180, 20); // Border around student details
+
+    doc.text(`Student Name : ${studentName}`, 20, 40);
+    doc.text(`Roll Number  : ${document.getElementById("rollNumber").value}`, 120, 40);
     let rank = document.getElementById("rank").innerText.replace("Rank: ", "");
-    doc.text(`Rank: ${rank}`, 20, 35);
+    doc.text(`Rank : ${rank}`, 20, 46);
 
-    // Extracting table data
+    // Extracting Table Data
     let table = document.querySelector("#result table");
     let rows = table.querySelectorAll("tr");
 
@@ -295,52 +308,62 @@
 
         tableData.push(rowData);
 
-        // Apply row colors based on Google Sheet formatting
+        // Apply row colors based on pass/fail
         if (rowIndex === 0) {
             rowStyles.push({ fillColor: [200, 200, 200], textColor: [0, 0, 0] }); // Header row (gray)
         } else if (row.innerHTML.includes("failed-subject")) {
             rowStyles.push({ fillColor: [255, 102, 102], textColor: [0, 0, 0] }); // Failing subject row (red)
-        } else if (row.innerHTML.includes("Attendance")) {
-            rowStyles.push({ fillColor: [255, 223, 186], textColor: [0, 0, 0] }); // Attendance row (light orange)
         } else {
             rowStyles.push({ fillColor: [144, 238, 144], textColor: [0, 0, 0] }); // Passing row (green)
         }
     });
 
-    // Add result status ("Pass" or "Fail") as the last row
+    // Add Pass/Fail row
     let passFailText = document.querySelector(".pass") ? "Pass" : "Fail";
     let passFailColor = passFailText === "Pass" ? [0, 128, 0] : [255, 0, 0]; // Green for pass, red for fail
-    tableData.push(["Result", passFailText]);
-    rowStyles.push({ fillColor: passFailColor, textColor: [255, 255, 255] }); // Highlight result row
+    tableData.push(["Final Result", passFailText]);
+    rowStyles.push({ fillColor: passFailColor, textColor: [255, 255, 255] }); // White text for contrast
 
-    // Using autoTable with row styles
+    // Formatting the Table in PDF
     doc.autoTable({
         head: [tableData[0]],
         body: tableData.slice(1),
-        startY: 45,
+        startY: 60, // Below student details
         styles: {
-            fontSize: 10,
-            cellPadding: 3,
+            fontSize: 14,
+            cellPadding: 5,
             textColor: [0, 0, 0],
             lineWidth: 0.2,
             lineColor: [0, 0, 0],
         },
         headStyles: {
-            fillColor: [200, 200, 200], // Header background color
-            textColor: [0, 0, 0],
+            fillColor: [0, 0, 128], // Header color (dark blue)
+            textColor: [255, 255, 255], // White text
             fontStyle: "bold",
-            halign:"left"
+            halign: "center",
         },
-        bodyStyles: rowStyles, // Apply row background colors
+        bodyStyles: rowStyles,
         columnStyles: {
-            1: { halign: "left" }, // left-align marks column
+            0: { halign: "center", cellWidth: 110 }, // Subject Column (Wide)
+            1: { halign: "center", cellWidth: 50 }, // Marks Column (Centered)
         },
+        theme: "grid",
+        margin: { top: 10, left: 15, right: 15 },
     });
 
-    // Save PDF with student name
-    doc.save(`${studentName}_Result.pdf`);
-}
+    // Certification Note
+    doc.setFontSize(10);
+    doc.setTextColor(60);
+    doc.text(
+        "This mark sheet is issued based on official examination results. Any complaints should be reported to the Madrasa administration.",
+        20,                
+        doc.internal.pageSize.height - 20
+    );
 
+    // Save PDF
+    doc.save(`${studentName}_Marksheet.pdf`);
+}
+ 
     </script>
 
 </body>
