@@ -24,8 +24,8 @@
             text-align: centre;
         }
 
-        h2 {
-            color: #333;
+                h2 {
+            333 #3cb01c;
             text-align: center;
         }
 
@@ -168,85 +168,97 @@
         let studentName = "";
 
         async function getResult() {
-            let roll = document.getElementById("rollNumber").value.trim();
-            let selectedClass = document.getElementById("classSelect").value;
-            let resultDiv = document.getElementById("result");
-            let rankDiv = document.getElementById("rank");
-            let downloadBtn = document.querySelector(".download-btn");
+    let roll = document.getElementById("rollNumber").value.trim();
+    let selectedClass = document.getElementById("classSelect").value;
+    let resultDiv = document.getElementById("result");
+    let rankDiv = document.getElementById("rank");
+    let downloadBtn = document.querySelector(".download-btn");
 
-            if (!selectedClass) {
-                alert("Please select your class!");
-                return;
-            }
-            if (roll === '') {
-                alert("Please enter a roll number!");
-                return;
-            }
+    if (!selectedClass) {
+        alert("Please select your class!");
+        return;
+    }
+    if (roll === '') {
+        alert("Please enter a roll number!");
+        return;
+    }
 
-            resultDiv.style.display = "none";
-            rankDiv.style.display = "none";
-            downloadBtn.style.display = "none";
+    resultDiv.style.display = "none";
+    rankDiv.style.display = "none";
+    downloadBtn.style.display = "none";
+    resultDiv.style.backgroundColor = ""; // Reset background color
 
-            if (!cachedData[selectedClass]) {
-                let sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${selectedClass}`;
-                try {
-                    let response = await fetch(sheetURL);
-                    let text = await response.text();
-                    let json = JSON.parse(text.substr(47).slice(0, -2));
-                    let rows = json.table.rows;
-                    let headers = json.table.cols.map(col => col.label);
+    if (!cachedData[selectedClass]) {
+        let sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${selectedClass}`;
+        try {
+            let response = await fetch(sheetURL);
+            let text = await response.text();
+            let json = JSON.parse(text.substr(47).slice(0, -2));
+            let rows = json.table.rows;
+            let headers = json.table.cols.map(col => col.label);
 
-                    cachedData[selectedClass] = rows.map(row => {
-                        let rowData = {};
-                        headers.forEach((header, index) => {
-                            rowData[header] = row.c[index]?.v || "N/A";
-                        });
-                        return rowData;
-                    });
-
-                } catch (error) {
-                    console.error("Error fetching data:", error);
-                    resultDiv.innerHTML = "Error fetching results. Please try again later.";
-                    resultDiv.style.display = "block";
-                    return;
-                }
-            }
-
-            let studentResult = cachedData[selectedClass].find(student => student["Roll Number"] == roll);
-
-            if (studentResult) {
-                studentName = studentResult["Student Name"] || "Unknown";
-                let isPass = true;
-                let resultText = `<h3>Roll Number: ${studentResult["Roll Number"]}</h3>`;
-                resultText += `<h3>Student Name: ${studentName}</h3>`;
-                resultText += `<table><tr><th>Subject</th><th>Marks</th></tr>`;
-
-                let totalMarks = 0;
-                Object.keys(studentResult).forEach(key => {
-                    if (!isNaN(studentResult[key]) && key.toLowerCase() !== "roll number" && key.toLowerCase() !== "rank") {
-                        let mark = studentResult[key] < passMark ? `<span class="failed-subject">${studentResult[key]}</span>` : studentResult[key];
-                        if (studentResult[key] < passMark) isPass = false;
-                        resultText += `<tr><td>${key}</td><td>${mark}</td></tr>`;
-                        totalMarks += Number(studentResult[key]); // Calculate total marks
-                    }
+            cachedData[selectedClass] = rows.map(row => {
+                let rowData = {};
+                headers.forEach((header, index) => {
+                    rowData[header] = row.c[index]?.v || "N/A";
                 });
+                return rowData;
+            });
 
-                resultText += `</table>`;
-                resultText += `<h3 class="${isPass ? 'pass' : 'fail'}">${isPass ? 'Pass' : 'Fail'}</h3>`;
-
-                // Display rank if available
-                let rank = studentResult["Rank"] || "N/A";
-                rankDiv.innerHTML = `<h3>Rank: ${rank}</h3>`;
-                rankDiv.style.display = "block";
-
-                resultDiv.innerHTML = resultText;
-                resultDiv.style.display = "block";
-                downloadBtn.style.display = "block";
-            } else {
-                resultDiv.innerHTML = "Result Not Found!";
-                resultDiv.style.display = "block";
-            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            resultDiv.innerHTML = "Error fetching results. Please try again later.";
+            resultDiv.style.display = "block";
+            return;
         }
+    }
+
+    let studentResult = cachedData[selectedClass].find(student => student["Roll Number"] == roll);
+
+    if (studentResult) {
+        studentName = studentResult["Student Name"] || "Unknown";
+        let resultStatus = studentResult["Result"] ? studentResult["Result"].toLowerCase() : "fail"; // Default to Fail if missing
+        let isPass = resultStatus === "pass";
+
+        let resultText = `<h3>Roll Number: ${studentResult["Roll Number"]}</h3>`;
+        resultText += `<h3>Student Name: ${studentName}</h3>`;
+        resultText += `<table><tr><th>Subject</th><th>Marks</th></tr>`;
+
+        Object.keys(studentResult).forEach(key => {
+            if (!isNaN(studentResult[key]) && key.toLowerCase() !== "roll number" && key.toLowerCase() !== "rank") {
+                let mark = studentResult[key] < passMark ? `<span class="failed-subject">${studentResult[key]}</span>` : studentResult[key];
+                resultText += `<tr><td>${key}</td><td>${mark}</td></tr>`;
+            }
+        });
+
+        resultText += `</table>`;
+        resultText += `<h3 class="${isPass ? 'pass' : 'fail'}">${isPass ? 'Pass' : 'Fail'}</h3>`;
+        // Add Congratulations Message if Passed
+        if (isPass) {
+            resultText += `<h3 style="color: green;">🎉 Congratulations, ${studentName}! You have passed the exam! 🎉</h3>`;
+        }
+        
+        // **Fail Message**
+        else {
+            resultText += `<h3 style="color: red;">♥️ Don't Give Up, ${studentName}! Keep Trying, Inshallah You Will Succeed! ♥️</h3>`;
+        }
+        
+        // Set result box color
+        resultDiv.style.border = `2px solid ${isPass ? "green" : "red"}`;
+
+        // Display rank if available
+        let rank = studentResult["Rank"] || "N/A";
+        rankDiv.innerHTML = `<h3>Rank: ${rank}</h3>`;
+        rankDiv.style.display = "block";
+
+        resultDiv.innerHTML = resultText;
+        resultDiv.style.display = "block";
+        downloadBtn.style.display = "block";
+    } else {
+        resultDiv.innerHTML = "Result Not Found!";
+        resultDiv.style.display = "block";
+    }
+}
 
         function downloadPDF() {
     const { jsPDF } = window.jspdf;
