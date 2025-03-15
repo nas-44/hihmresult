@@ -76,6 +76,7 @@
 
         .result-box {
             margin-top: 20px;
+            margin-bottom: 60px;
             padding: 15px;
             border-radius: 5px;
             background: #eef;
@@ -130,17 +131,70 @@
             font-weight: bold;
         }
         
-        .contact-box {
+        /* Floating Helpdesk Button */
+.helpdesk-btn {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #eef;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     text-align: center;
-    font-size: 14px;
+    line-height: 50px;
+    font-size: 24px;
     font-weight: bold;
-    padding: 10px 0;
-    border-top: 1px solid #ccc;
+    cursor: pointer;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s;
+}
+
+.helpdesk-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Helpdesk Popup */
+.helpdesk-popup {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    width: 250px;
+    text-align: left;
+}
+
+.helpdesk-popup h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.helpdesk-popup p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.helpdesk-popup a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.helpdesk-popup a:hover {
+    text-decoration: underline;
+}
+
+.close-popup {
+    text-align: right;
+    cursor: pointer;
+    font-size: 16px;
+    color: red;
 }
     </style>
 </head>
@@ -176,10 +230,16 @@
         <div id="result" class="result-box"></div>
         <button class="download-btn" onclick="downloadPDF()">Download your Result</button>
     </div>
-    <div id="contact-info" class="contact-box">
-    <p><strong>For Help, please contact:</strong></p>
-    <p>Naseef Wafy <a href="tel:+91 9072987595">9072987595</a></p>
+    <!-- Floating Helpdesk Button -->
+<div class="helpdesk-btn" onclick="toggleHelpdesk()">?</div>
 
+<!-- Helpdesk Popup -->
+<div id="helpdesk-popup" class="helpdesk-popup">
+    <div class="close-popup" onclick="toggleHelpdesk()">✖</div>
+    <h4>Need Help?</h4>
+    <p><strong>Please contact:</strong></p>
+    <p><strong>Naseef Wafy</strong></p>
+    <p>📞 <a href="tel:+91 9072987595">9072987595</a></p>
 </div>
 
     <script>
@@ -384,6 +444,11 @@
 
     // Save PDF
     doc.save(`${studentName}_Marksheet.pdf`);
+}
+
+function toggleHelpdesk() {
+    let popup = document.getElementById("helpdesk-popup");
+    popup.style.display = popup.style.display === "block" ? "none" : "block";
 }
  
     </script>
