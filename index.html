@@ -288,27 +288,37 @@
 
         function downloadPDF() {
     const { jsPDF } = window.jspdf;
-    let doc = new jsPDF("p", "mm", "a4"); // A4 size document
+    let doc = new jsPDF("p", "mm", "a4");
 
-    // Institution Header
+    // Page width calculations for centering
+    let pageWidth = doc.internal.pageSize.width;
+    let centerX = pageWidth / 2;
+
+    // Institution Header (Centered)
     doc.setFont("times", "bold");
     doc.setTextColor(0, 0, 128);
     doc.setFontSize(16);
-    doc.text("HAYATHUL ISLAM HIGHER SECONDARY MADRASA", 30, 20);
+    let title = "HAYATHUL ISLAM HIGHER SECONDARY MADRASA";
+    let titleWidth = doc.getTextWidth(title);
+    doc.text(title, centerX - titleWidth / 2, 20);
 
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.text("Final Examination Results", 80, 27);
+    let subtitle = "Final Examination Results";
+    let subtitleWidth = doc.getTextWidth(subtitle);
+    doc.text(subtitle, centerX - subtitleWidth / 2, 27);
 
-    // Student Details Section
-    doc.setFont("times", "normal");
+    // Student Details Section (Centered)
     doc.setFontSize(14);
-    doc.rect(16, 30, 160, 30); // Border around student details
+    doc.rect(20, 30, 160, 30); // Centered box for student details
 
-    doc.text(`Student Name : ${studentName}`, 20, 40);
-    doc.text(`Roll Number  : ${document.getElementById("rollNumber").value}`, 120, 40);
-    let rank = document.getElementById("rank").innerText.replace("Rank: ", "");
-    doc.text(`Rank : ${rank}`, 20, 46);
+    let studentNameText = `Student Name : ${studentName}`;
+    let rollNumberText = `Roll Number  : ${document.getElementById("rollNumber").value}`;
+    let rankText = `Rank : ${document.getElementById("rank").innerText.replace("Rank: ", "")}`;
+
+    doc.text(studentNameText, centerX - doc.getTextWidth(studentNameText) / 2, 40);
+    doc.text(rollNumberText, centerX - doc.getTextWidth(rollNumberText) / 2, 46);
+    doc.text(rankText, centerX - doc.getTextWidth(rankText) / 2, 52);
 
     // Extracting Table Data
     let table = document.querySelector("#result table");
@@ -341,7 +351,7 @@
     let passFailText = document.querySelector(".pass") ? "Pass" : "Fail";
     let passFailColor = passFailText === "Pass" ? [0, 128, 0] : [255, 0, 0]; // Green for pass, red for fail
     tableData.push(["Final Result", passFailText]);
-    rowStyles.push({ fillColor: passFailColor, textColor: [255, 255, 255] }); // White text for contrast
+    rowStyles.push({ fillColor: passFailColor, textColor: [255, 255, 255] });
 
     // Formatting the Table in PDF
     doc.autoTable({
@@ -367,17 +377,15 @@
             1: { halign: "center", cellWidth: 50 }, // Marks Column (Centered)
         },
         theme: "grid",
-        margin: { top: 10, left: 15, right: 15 },
+        margin: { top: 10, left: 20, right: 20 },
     });
 
-    // Certification Note
+    // Certification Note (Centered)
     doc.setFontSize(14);
     doc.setTextColor(60);
-    doc.text(
-        "HAYATHUL ISLAM HIGHER SECONDARY MADRASA  MURINGAMPURAYI",
-        20,                        
-        doc.internal.pageSize.height - 20
-    );
+    let footerText = "HAYATHUL ISLAM HIGHER SECONDARY MADRASA, MURINGAMPURAYI";
+    let footerWidth = doc.getTextWidth(footerText);
+    doc.text(footerText, centerX - footerWidth / 2, doc.internal.pageSize.height - 20);
 
     // Save PDF
     doc.save(`${studentName}_Marksheet.pdf`);
