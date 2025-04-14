@@ -1,8 +1,459 @@
-<div style="position: relative; width: 100%; height: 0; padding-top: 393.5578%;
- padding-bottom: 0; box-shadow: 0 2px 8px 0 rgba(63,69,81,0.16); margin-top: 1.6em; margin-bottom: 0.9em; overflow: hidden;
- border-radius: 8px; will-change: transform;">
-  <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0;margin: 0;"
-    src="https://www.canva.com/design/DAGknemq604/dcFKvqdovKi0uHMQa6sh1Q/watch?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
-  </iframe>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Result Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        .container {
+            width: 70%;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0px 0px 10px gray;
+            border-radius: 10px;
+            text-align: centre;
+        }
+        
+        h2 {
+    color: #333;
+    font-size: 20px;
+    text-align: center;
+} 
+         
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        select,
+        input,
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #289939;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .rank-box {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #ffc;
+            text-align: center;
+            display: none;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            margin-bottom: 60px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #eef;
+            text-align: center;
+            display: none;
+        }
+
+        .download-btn {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .download-btn:hover {
+            background-color: #c9302c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #ddd;
+        }
+
+        .pass {
+            font-weight: bold;
+            color: green;
+        }
+
+        .fail {
+            font-weight: bold;
+            color: red;
+        }
+
+        .failed-subject {
+            color: red;
+            font-weight: bold;
+        }
+        
+        /* Floating Helpdesk Button */
+.helpdesk-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 50px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s;
+}
+
+.helpdesk-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Helpdesk Popup */
+.helpdesk-popup {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    width: 250px;
+    text-align: left;
+}
+
+.helpdesk-popup h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.helpdesk-popup p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.helpdesk-popup a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.helpdesk-popup a:hover {
+    text-decoration: underline;
+}
+
+.close-popup {
+    text-align: right;
+    cursor: pointer;
+    font-size: 16px;
+    color: red;
+}
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>HAYATHUL ISLAM HIGHER SECONDARY MADRASA</h1>
+        <h2>Check Your Exam Result</h2>
+
+        <div class="form-group">
+            <label for="classSelect">Select Class:</label>
+            <select id="classSelect">
+                <option value="" disabled selected>Select your class</option>
+                <option value="Class 1">Class 1</option>
+                <option value="Class 2">Class 2</option>
+                <option value="Class 3">Class 3</option>
+                <option value="Class 4">Class 4</option>
+                <option value="Class 6">Class 6</option>
+                <option value="Class 8">Class 8</option>
+                <option value="Class 9">Class 9</option>
+                <option value="Class 11">Class 11</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="rollNumber">Enter Roll Number:</label>
+            <input type="text" id="rollNumber" placeholder="Enter Roll Number">
+        </div>
+
+        <button onclick="getResult()">Get Result</button>
+        <div id="rank" class="rank-box"></div>
+        <div id="result" class="result-box"></div>
+        <button class="download-btn" onclick="downloadPDF()">Download your Result</button>
+    </div>
+    <!-- Floating Helpdesk Button -->
+<div class="helpdesk-btn" onclick="toggleHelpdesk()">?</div>
+
+<!-- Helpdesk Popup -->
+<div id="helpdesk-popup" class="helpdesk-popup">
+    <div class="close-popup" onclick="toggleHelpdesk()">✖</div>
+    <h4>Need Help?</h4>
+    <p><strong>Please contact:</strong></p>
+    <p><strong>Naseef Wafy</strong></p>
+    <p>📞 <a href="tel:+91 9072987595">9072987595</a></p>
 </div>
-<a href="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAGknemq604&#x2F;dcFKvqdovKi0uHMQa6sh1Q&#x2F;watch?utm_content=DAGknemq604&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener">Design</a> by Muhammed Naseef MS
+
+    <script>
+        const sheetID = "1R2nNGJVfoR6eF_xBspheENdfY0hU4cwFltMSWd0nDyE";
+        let cachedData = {};
+        const passMark = 18;
+        let studentName = "";
+
+        async function getResult() {
+    let roll = document.getElementById("rollNumber").value.trim();
+    let selectedClass = document.getElementById("classSelect").value;
+    let resultDiv = document.getElementById("result");
+    let rankDiv = document.getElementById("rank");
+    let downloadBtn = document.querySelector(".download-btn");
+
+    if (!selectedClass) {
+        alert("Please select your class!");
+        return;
+    }
+    if (roll === '') {
+        alert("Please enter a roll number!");
+        return;
+    }
+
+    resultDiv.style.display = "none";
+    rankDiv.style.display = "none";
+    downloadBtn.style.display = "none";
+    resultDiv.style.backgroundColor = ""; // Reset background color
+
+    if (!cachedData[selectedClass]) {
+        let sheetURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${selectedClass}`;
+        try {
+            let response = await fetch(sheetURL);
+            let text = await response.text();
+            let json = JSON.parse(text.substr(47).slice(0, -2));
+            let rows = json.table.rows;
+            let headers = json.table.cols.map(col => col.label);
+
+            cachedData[selectedClass] = rows.map(row => {
+                let rowData = {};
+                headers.forEach((header, index) => {
+                    rowData[header] = row.c[index]?.v || "N/A";
+                });
+                return rowData;
+            });
+
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            resultDiv.innerHTML = "Error fetching results. Please try again later.";
+            resultDiv.style.display = "block";
+            return;
+        }
+    }
+
+    let studentResult = cachedData[selectedClass].find(student => student["Roll Number"] == roll);
+
+    if (studentResult) {
+        studentName = studentResult["Student Name"] || "Unknown";
+        let resultStatus = studentResult["Result"] ? studentResult["Result"].toLowerCase() : "fail"; // Default to Fail if missing
+        let isPass = resultStatus === "pass";
+
+        let resultText = `<h3>Roll Number: ${studentResult["Roll Number"]}</h3>`;
+        resultText += `<h3>Student Name: ${studentName}</h3>`;
+        resultText += `<table><tr><th>Subject</th><th>Marks</th></tr>`;
+
+        Object.keys(studentResult).forEach(key => {
+            if (!isNaN(studentResult[key]) && key.toLowerCase() !== "roll number" && key.toLowerCase() !== "rank") {
+                let mark = studentResult[key] < passMark ? `<span class="failed-subject">${studentResult[key]}</span>` : studentResult[key];
+                resultText += `<tr><td>${key}</td><td>${mark}</td></tr>`;
+            }
+        });
+
+        resultText += `</table>`;
+        resultText += `<h3 class="${isPass ? 'pass' : 'fail'}">${isPass ? 'Pass' : 'Fail'}</h3>`;
+        // Add Congratulations Message if Passed
+        if (isPass) {
+            resultText += `<h3 style="color: green;">🎉 Congratulations, ${studentName}! You have passed the exam! 🎉</h3>`;
+        }
+        
+        // **Fail Message**
+        else {
+            resultText += `<h3 style="color: red;">♥️ Don't Give Up, ${studentName}! Keep Trying, Inshallah You Will Succeed! ♥️</h3>`;
+        }
+        
+        // Set result box color
+        resultDiv.style.border = `2px solid ${isPass ? "green" : "red"}`;
+
+        // Display rank if available
+        let rank = studentResult["Rank"] || "N/A";
+        rankDiv.innerHTML = `<h3>Rank: ${rank}</h3>`;
+        rankDiv.style.display = "block";
+
+        resultDiv.innerHTML = resultText;
+        resultDiv.style.display = "block";
+        downloadBtn.style.display = "block";
+    } else {
+        resultDiv.innerHTML = "Result Not Found!";
+        resultDiv.style.display = "block";
+    }
+}
+
+        function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF("p", "mm", "a4");
+
+    // Page width calculations for centering
+    let pageWidth = doc.internal.pageSize.width;
+    let centerX = pageWidth / 2;
+
+    // Institution Header (Centered)
+    doc.setFont("times", "bold");
+    doc.setTextColor(0, 0, 128);
+    doc.setFontSize(16);
+    let title = "HAYATHUL ISLAM HIGHER SECONDARY MADRASA";
+    let titleWidth = doc.getTextWidth(title);
+    doc.text(title, centerX - titleWidth / 2, 20);
+
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    let subtitle = "Final Examination Results";
+    let subtitleWidth = doc.getTextWidth(subtitle);
+    doc.text(subtitle, centerX - subtitleWidth / 2, 27);
+
+    // Student Details Section (Centered)
+    doc.setFontSize(14);
+    doc.rect(20, 30, 160, 30); // Centered box for student details
+
+    let studentNameText = `Student Name : ${studentName}`;
+    let rollNumberText = `Roll Number  : ${document.getElementById("rollNumber").value}`;
+    let rankText = `Rank : ${document.getElementById("rank").innerText.replace("Rank: ", "")}`;
+
+    doc.text(studentNameText, centerX - doc.getTextWidth(studentNameText) / 2, 40);
+    doc.text(rollNumberText, centerX - doc.getTextWidth(rollNumberText) / 2, 46);
+    doc.text(rankText, centerX - doc.getTextWidth(rankText) / 2, 52);
+
+    // Extracting Table Data
+    let table = document.querySelector("#result table");
+    let rows = table.querySelectorAll("tr");
+
+    let tableData = [];
+    let rowStyles = [];
+
+    rows.forEach((row, rowIndex) => {
+        let rowData = [];
+        let cells = row.querySelectorAll("td, th");
+
+        cells.forEach((cell) => {
+            rowData.push(cell.innerText);
+        });
+
+        tableData.push(rowData);
+
+        // Apply row colors based on pass/fail
+        if (rowIndex === 0) {
+            rowStyles.push({ fillColor: [200, 200, 200], textColor: [0, 0, 0] }); // Header row (gray)
+        } else if (row.innerHTML.includes("failed-subject")) {
+            rowStyles.push({ fillColor: [255, 102, 102], textColor: [0, 0, 0] }); // Failing subject row (red)
+        } else {
+            rowStyles.push({ fillColor: [144, 238, 144], textColor: [0, 0, 0] }); // Passing row (green)
+        }
+    });
+
+    // Add Pass/Fail row
+    let passFailText = document.querySelector(".pass") ? "Pass" : "Fail";
+    let passFailColor = passFailText === "Pass" ? [0, 128, 0] : [255, 0, 0]; // Green for pass, red for fail
+    tableData.push(["Final Result", passFailText]);
+    rowStyles.push({ fillColor: passFailColor, textColor: [255, 255, 255] });
+
+    // Formatting the Table in PDF
+    doc.autoTable({
+        head: [tableData[0]],
+        body: tableData.slice(1),
+        startY: 60, // Below student details
+        styles: {
+            fontSize: 14,
+            cellPadding: 5,
+            textColor: [0, 0, 0],
+            lineWidth: 0.2,
+            lineColor: [0, 0, 0],
+        },
+        headStyles: {
+            fillColor: [0, 0, 128], // Header color (dark blue)
+            textColor: [255, 255, 255], // White text
+            fontStyle: "bold",
+            halign: "center",
+        },
+        bodyStyles: rowStyles,
+        columnStyles: {
+            0: { halign: "center", cellWidth: 110 }, // Subject Column (Wide)
+            1: { halign: "center", cellWidth: 50 }, // Marks Column (Centered)
+        },
+        theme: "grid",
+        margin: { top: 10, left: 20, right: 20 },
+    });
+
+    // Certification Note (Centered)
+    doc.setFontSize(14);
+    doc.setTextColor(60);
+    let footerText = "HAYATHUL ISLAM HIGHER SECONDARY MADRASA, MURINGAMPURAYI";
+    let footerWidth = doc.getTextWidth(footerText);
+    doc.text(footerText, centerX - footerWidth / 2, doc.internal.pageSize.height - 20);
+
+    // Save PDF
+    doc.save(`${studentName}_Marksheet.pdf`);
+}
+
+function toggleHelpdesk() {
+    let popup = document.getElementById("helpdesk-popup");
+    popup.style.display = popup.style.display === "block" ? "none" : "block";
+}
+ 
+    </script>
+
+</body>
+
+</html>
+
